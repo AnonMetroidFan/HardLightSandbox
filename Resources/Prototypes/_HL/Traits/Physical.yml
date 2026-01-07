@@ -25,7 +25,7 @@
   speciesBlacklist:
   - IPC
   mutuallyExclusiveTraits:
-  - fireproof
+  - heatresistant
   - radproof
   - snakeeater
   - cryoresistant
@@ -46,11 +46,11 @@
   - snakeeater
   - cryoresistant
   components:
-  - type: FireproofBodyParts
+  - type: heatresistantBodyParts
   - type: DamageProtectionBuff
     modifiers:
       dermal:
-        id: FireproofTrait
+        id: heatresistantTrait
         coefficients:
           Heat: 0.01
   - type: FireProtection
@@ -66,7 +66,7 @@
   - IPC
   mutuallyExclusiveTraits:
   - insulated
-  - fireproof
+  - heatresistant
   - snakeeater
   - cryoresistant
   components:
@@ -87,7 +87,7 @@
   - IPC
   mutuallyExclusiveTraits:
   - insulated
-  - fireproof
+  - heatresistant
   - radproof
   - cryoresistant
   components:
@@ -107,7 +107,7 @@
   speciesBlacklist:
   - IPC
   mutuallyExclusiveTraits:
-  - fireproof
+  - heatresistant
   - insulated
   - snakeeater
   - radproof
