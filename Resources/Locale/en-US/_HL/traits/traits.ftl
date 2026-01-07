@@ -13,7 +13,6 @@ Innoculated = Innoculated
 Innoculated-text = made Zombie immune due to regular ambuzol plus innoculations.
 Insulated = Insulated
 Insulated-text = through natural or artificial means you're naturally insulated against electricity
-fireproof = fireproof
 heatresistant = heatresistant
 heatresistant-text = through natural or artificial means you're naturally insulated against fire
 radproof = radproof

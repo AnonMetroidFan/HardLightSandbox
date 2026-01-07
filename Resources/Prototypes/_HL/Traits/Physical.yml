@@ -1,6 +1,6 @@
 - type: trait
   id: Leadfooted
-  name: Lead-footed
+  name: Lead-footed-name
   description: Lead-footed-text
   category: Physical
   cost: 3
