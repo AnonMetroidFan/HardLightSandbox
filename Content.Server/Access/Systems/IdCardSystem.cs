@@ -20,7 +20,6 @@ public sealed class IdCardSystem : SharedIdCardSystem
     [Dependency] private readonly PopupSystem _popupSystem = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
-    [Dependency] private readonly IAdminLogManager _adminLogger = default!;
     [Dependency] private readonly ChatSystem _chat = default!;
     [Dependency] private readonly MicrowaveSystem _microwave = default!;
 
@@ -51,8 +50,8 @@ public sealed class IdCardSystem : SharedIdCardSystem
                     EntityManager.SpawnEntity("FoodBadRecipe",
                         transformComponent.Coordinates);
                 }
-                _adminLogger.Add(LogType.Action, LogImpact.Medium,
-                    $"{ToPrettyString(args.Microwave)} burnt {ToPrettyString(uid):entity}");
+                /* _adminLogger.Add(LogType.Action, LogImpact.Medium,
+                    $"{ToPrettyString(args.Microwave)} burnt {ToPrettyString(uid):entity}"); */
                 EntityManager.QueueDeleteEntity(uid);
                 return;
             }
@@ -79,8 +78,8 @@ public sealed class IdCardSystem : SharedIdCardSystem
                 access.Tags.Clear();
                 Dirty(uid, access);
 
-                _adminLogger.Add(LogType.Action, LogImpact.Medium,
-                    $"{ToPrettyString(args.Microwave)} cleared access on {ToPrettyString(uid):entity}");
+                /* _adminLogger.Add(LogType.Action, LogImpact.Medium,
+                    $"{ToPrettyString(args.Microwave)} cleared access on {ToPrettyString(uid):entity}"); */
             }
             else
             {
@@ -98,8 +97,8 @@ public sealed class IdCardSystem : SharedIdCardSystem
             access.Tags.Add(random.ID);
             Dirty(uid, access);
 
-            _adminLogger.Add(LogType.Action, LogImpact.High,
-                    $"{ToPrettyString(args.Microwave)} added {random.ID} access to {ToPrettyString(uid):entity}");
+            /* _adminLogger.Add(LogType.Action, LogImpact.High,
+                    $"{ToPrettyString(args.Microwave)} added {random.ID} access to {ToPrettyString(uid):entity}"); */
 
         }
     }

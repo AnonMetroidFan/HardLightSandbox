@@ -43,10 +43,8 @@
     LFoot: MobIPCLFoot
     RFoot: MobIPCRFoot
     RArmExtension: MobHumanoidAnyMarking # Hardlight: enables harpy/bat wings
-    # Removed deprecated TailBehind / TailOversuit / duplicate FacialHair entries. Tail layer already present above.
-    # TailBehind: MobHumanoidAnyMarking
-    # TailOversuit: MobHumanoidAnyMarking
-    # FacialHair: MobHumanoidAnyMarking
+    TailBehind: MobHumanoidAnyMarking
+    TailOversuit: MobHumanoidAnyMarking
     Snout: MobHumanoidAnyMarking
     UndergarmentTop: MobHumanoidAnyMarking
     UndergarmentBottom: MobHumanoidAnyMarking
@@ -68,7 +66,7 @@
       points: 1 # Hard light change
       required: false
     Head:
-      points: 1
+      points: 4
       required: true
       defaultMarkings: [ MobIPCHeadDefault ]
     Chest:
@@ -76,11 +74,11 @@
       required: true
       defaultMarkings: [ MobIPCTorsoDefault ]
     Legs:
-      points: 4
+      points: 8
       required: true
       defaultMarkings: [ MobIPCLLegDefault, MobIPCLFootDefault, MobIPCRLegDefault, MobIPCRFootDefault ]
     Arms:
-      points: 4
+      points: 8
       required: true
       defaultMarkings: [ MobIPCLArmDefault, MobIPCLHandDefault, MobIPCRArmDefault, MobIPCRHandDefault ]
     HeadSide:

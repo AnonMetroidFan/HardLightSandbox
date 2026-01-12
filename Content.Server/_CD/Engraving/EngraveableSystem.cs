@@ -12,7 +12,6 @@ namespace Content.Server._CD.Engraving;
 
 public sealed class EngraveableSystem : EntitySystem
 {
-    [Dependency] private readonly IAdminLogManager _adminLogger = default!;
     [Dependency] private readonly PopupSystem _popup = default!;
     [Dependency] private readonly QuickDialogSystem _dialog = default!;
 
@@ -70,9 +69,9 @@ public sealed class EngraveableSystem : EntitySystem
                             actor.PlayerSession.AttachedEntity.Value,
                             actor.PlayerSession,
                             PopupType.Medium);
-                        _adminLogger.Add(LogType.Action,
+                        /* _adminLogger.Add(LogType.Action,
                             LogImpact.Low,
-                            $"{ToPrettyString(actor.PlayerSession.AttachedEntity):player} engraved an item with message: {message}");
+                            $"{ToPrettyString(actor.PlayerSession.AttachedEntity):player} engraved an item with message: {message}"); */
                     });
             },
             Impact = LogImpact.Low,

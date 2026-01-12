@@ -13,8 +13,6 @@
         nameGenerator:
           !type:NanotrasenNameGenerator
           prefixCreator: '14-SB'
-      - type: StationEmergencyShuttle
-        emergencyShuttlePath: /Maps/Shuttles/emergency_amber.yml
       - type: ExtraStationInformation
         iconPath: /Textures/_HL/Logo/icon/icon-256x256.png # used the biggest one, looks better when downscaling than upscaling
         stationSubtext: 'hardlight-lobby-hardlight-subtext'
@@ -70,9 +68,15 @@
           StationAi: [ 1, 1 ]
           Borg: [ 3, 3 ]
           #frontier
-          Contractor: [ 5, 5 ]
+          Contractor: [ -1, -1 ]
           Pilot: [ 5, 5 ]
           Mercenary: [ 5, 5 ]
-          #StationTrafficController: [ 1, 1 ]
-          #Valet: [ 1, 1 ]
-          #MailCarrier: [ 1, 1 ]
+          MedicalQuadBorg: [ 3, 3 ]
+          ServiceQuadBorg: [ 3, 3 ]
+          SalvageQuadBorg: [ 3, 3 ]
+          SecurityQuadBorg: [ 3, 3 ]
+          EngineeringQuadBorg: [ 3, 3 ]
+          Valet: [ 1, 1 ]
+          MailCarrier: [ 1, 1 ]
+          Prisoner: [ 3, 3 ]
+          ForensicMantis: [ 1, 1 ]

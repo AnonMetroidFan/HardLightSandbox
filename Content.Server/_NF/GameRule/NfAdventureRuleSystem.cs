@@ -44,6 +44,8 @@ public sealed class NFAdventureRuleSystem : GameRuleSystem<NFAdventureRuleCompon
 
     private readonly ProtoId<GamePresetPrototype> _fallbackPresetID = "NFPirates";
     private ISawmill _sawmill = default!;
+    // Prevent duplicate end-of-round reporting across multiple triggers
+    private int _lastReportedRoundId = -1;
 
     public sealed class PlayerRoundBankInformation
     {
@@ -76,7 +78,7 @@ public sealed class NFAdventureRuleSystem : GameRuleSystem<NFAdventureRuleCompon
         base.Initialize();
         SubscribeLocalEvent<PlayerSpawnCompleteEvent>(OnPlayerSpawningEvent);
         SubscribeLocalEvent<PlayerDetachedEvent>(OnPlayerDetachedEvent);
-    //    SubscribeLocalEvent<RoundRestartCleanupEvent>(OnRoundRestart);
+        SubscribeLocalEvent<RoundRestartCleanupEvent>(OnRoundRestart);
         _player.PlayerStatusChanged += PlayerManagerOnPlayerStatusChanged;
         _sawmill = Logger.GetSawmill("debris");
     }
@@ -92,9 +94,15 @@ public sealed class NFAdventureRuleSystem : GameRuleSystem<NFAdventureRuleCompon
         foreach (var (player, playerInfo) in sortedPlayers)
         {
             var endBalance = playerInfo.EndBalance;
-            if (_bank.TryGetBalance(player, out var bankBalance))
+            
+            // Only try to get live balance if entity exists and has an attached player session
+            if (EntityManager.EntityExists(player) && 
+                _player.TryGetSessionByEntity(player, out var session))
             {
-                endBalance = bankBalance;
+                if (_bank.TryGetBalance(player, out var bankBalance))
+                {
+                    endBalance = bankBalance;
+                }
             }
 
             // Check if endBalance is valid (non-negative)
@@ -144,9 +152,14 @@ public sealed class NFAdventureRuleSystem : GameRuleSystem<NFAdventureRuleCompon
             relayText += '\n';
             highScore.RemoveAt(0);
         }
-        // Fire and forget.
-        _ = ReportRound(relayText);
-        _ = ReportLedger();
+        // Fire and forget, but only once per round.
+        var currentRoundId = _ticker.RoundId;
+        if (_lastReportedRoundId != currentRoundId)
+        {
+            _lastReportedRoundId = currentRoundId;
+            _ = ReportRound(relayText);
+            _ = ReportLedger();
+        }
     }
 
     private void OnPlayerSpawningEvent(PlayerSpawnCompleteEvent ev)
@@ -197,10 +210,12 @@ public sealed class NFAdventureRuleSystem : GameRuleSystem<NFAdventureRuleCompon
         }
     }
 
-    /* private void OnRoundRestart(RoundRestartCleanupEvent ev)
+    private void OnRoundRestart(RoundRestartCleanupEvent ev)
     {
+        // Reset round-scoped data and reporting guards
         _players.Clear();
-    } */
+        _lastReportedRoundId = -1;
+    }
 
     protected override void Started(EntityUid uid, NFAdventureRuleComponent component, GameRuleComponent gameRule, GameRuleStartedEvent args)
     {

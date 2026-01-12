@@ -17,6 +17,8 @@
 - type: speciesBaseSprites
   id: MobHumanSprites
   sprites:
+    TailBehind: MobHumanoidAnyMarking
+    TailOversuit: MobHumanoidAnyMarking
     Special: MobHumanoidAnyMarking
     Head: MobHumanHead
     Hair: MobHumanoidAnyMarking
@@ -46,7 +48,7 @@
   id: MobHumanMarkingLimits
   points:
     Special: # the cat ear joke
-      points: 0
+      points: 1
       required: false
     Hair:
       points: 1

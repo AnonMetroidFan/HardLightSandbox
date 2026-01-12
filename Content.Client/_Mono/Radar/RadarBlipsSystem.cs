@@ -24,7 +24,6 @@ public sealed partial class RadarBlipsSystem : EntitySystem
     private const float MaxBlipRenderDistance = 1000f;
 
     [Dependency] private readonly IGameTiming _timing = default!;
-    [Dependency] private readonly SharedTransformSystem _xform = default!;
 
     private TimeSpan _lastUpdatedTime;
     private List<(NetCoordinates Position, Vector2 Vel, float Scale, Color Color, RadarBlipShape Shape)> _blips = new();
@@ -39,7 +38,12 @@ public sealed partial class RadarBlipsSystem : EntitySystem
 
     private void HandleReceiveBlips(GiveBlipsEvent ev, EntitySessionEventArgs args)
     {
-        _blips = ev.Blips;
+        // Only update blips if the event contains them (not empty)
+        // This prevents hitscan updates from clearing actual radar blips
+        if (ev.Blips.Count > 0)
+            _blips = ev.Blips;
+            
+        _hitscans = ev.HitscanLines;
         _lastUpdatedTime = _timing.CurTime;
     }
 

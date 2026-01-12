@@ -49,6 +49,9 @@
   id: NFCartridgeGrenade40mmFlash
 
 - type: Tag
+  id: AIShipWeapon
+
+- type: Tag
   id: NFCartridgeGrenade40mmEmp
 
 - type: Tag
@@ -331,3 +334,19 @@
 
 - type: Tag
   id: UnFlatpackable
+
+# syndie tools
+
+- type: Tag
+  id: Syndie_Powerdrill
+
+- type: Tag
+  id: Syndie_JawsOfLife
+
+- type: Tag
+  id: Syndie_Multitool
+
+# Random Stuff
+
+- type: Tag
+  id: GaslockFrameMachineCircuitBoard

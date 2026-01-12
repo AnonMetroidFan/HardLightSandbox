@@ -15,6 +15,8 @@
 - type: speciesBaseSprites
   id: MobVulpkaninSprites
   sprites:
+    TailBehind: MobHumanoidAnyMarking
+    TailOversuit: MobHumanoidAnyMarking
     Head: MobVulpkaninHead
     Hair: MobHumanoidAnyMarking
     FacialHair: MobHumanoidAnyMarking
@@ -76,6 +78,9 @@
       points: 1
       required: true
       defaultMarkings: [ VulpEar ]
+    HeadSide:
+      points: 2
+      required: false
 
 - type: humanoidBaseSprite
   id: MobVulpkaninHead

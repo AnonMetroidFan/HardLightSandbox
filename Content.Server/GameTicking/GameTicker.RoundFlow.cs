@@ -64,6 +64,7 @@ namespace Content.Server.GameTicking
 
         [ViewVariables]
         private GameRunLevel _runLevel;
+        private bool _endingRound; // guard to prevent duplicate EndRound execution
 
         private RoundEndMessageEvent.RoundEndPlayerInfo[]? _replayRoundPlayerInfo;
 
@@ -93,7 +94,8 @@ namespace Content.Server.GameTicking
         {
             // Allow map updates during the entire lobby phase, not just the early part
             // The original constraint was too restrictive and prevented late votes from taking effect
-            return RunLevel == GameRunLevel.PreRoundLobby;
+            return RunLevel == GameRunLevel.PreRoundLobby &&
+                   _roundStartTime - RoundPreloadTime > _gameTiming.CurTime;
         }
 
         /// <summary>
@@ -105,8 +107,7 @@ namespace Content.Server.GameTicking
         private void LoadMaps()
         {
             // Prevent loading maps if the default map already exists.
-            // Skip this check if DefaultMap is Nullspace (invalid/uninitialized)
-            if (DefaultMap != MapId.Nullspace && _mapManager.MapExists(DefaultMap))
+            if (_mapManager.MapExists(DefaultMap))
                 return;
 
             AddGamePresetRules();
@@ -484,7 +485,20 @@ namespace Content.Server.GameTicking
             if (DummyTicker)
                 return;
 
-            DebugTools.Assert(RunLevel == GameRunLevel.InRound);
+            // Prevent duplicate round end processing if multiple callers race
+            if (_endingRound)
+            {
+                _sawmill.Warning("EndRound called while already ending – ignoring duplicate call.");
+                return;
+            }
+
+            if (RunLevel != GameRunLevel.InRound)
+            {
+                _sawmill.Warning($"EndRound called when RunLevel={RunLevel}, expected InRound – ignoring.");
+                return;
+            }
+
+            _endingRound = true;
             _sawmill.Info("Ending round!");
 
             RunLevel = GameRunLevel.PostRound;
@@ -748,6 +762,9 @@ namespace Content.Server.GameTicking
 
             PlayersJoinedRoundNormally = 0;
 
+            // Clear end-round guard for the next round
+            _endingRound = false;
+
             RunLevel = GameRunLevel.PreRoundLobby;
             RandomizeLobbyBackground();
             ResettingCleanup();
@@ -838,7 +855,6 @@ namespace Content.Server.GameTicking
             //    _playerGameStatuses[session.UserId] = LobbyEnabled ? PlayerGameStatus.NotReadyToPlay : PlayerGameStatus.ReadyToPlay;
             //}
             // DefaultMap = default; // This will set DefaultMap to 0 (invalid)
-            DefaultMap = default; // Reset DefaultMap so new map selections (e.g., from voting) take effect
             RoundId = 0;
 
             // Remove all job slots from every station

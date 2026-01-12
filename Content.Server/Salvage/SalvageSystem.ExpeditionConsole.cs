@@ -18,6 +18,7 @@ using Robust.Shared.Physics; // Frontier
 using Content.Server.Chat.Systems; // HARDLIGHT: For ChatSystem (server-side)
 using Content.Shared.Salvage; // HARDLIGHT: For SalvageMissionType
 using System.Threading; // HARDLIGHT: For CancellationTokenSource
+using RobustTimer = Robust.Shared.Timing.Timer; // Replace obsolete SpawnTimer usage with Timer.Spawn
 using System.Numerics; // HARDLIGHT: For Vector2
 using Robust.Shared.Map; // HARDLIGHT: For EntityCoordinates
 using Content.Server.Shuttles.Components; // HARDLIGHT: For ShuttleComponent
@@ -31,46 +32,47 @@ namespace Content.Server.Salvage;
 
 public sealed partial class SalvageSystem
 {
-    [ValidatePrototypeId<EntityPrototype>]
-    public const string CoordinatesDisk = "CoordinatesDisk";
+    public static readonly EntProtoId CoordinatesDisk = new("CoordinatesDisk");
 
     [Dependency] private readonly SharedPopupSystem _popupSystem = default!; // Frontier
-    [Dependency] private readonly SalvageSystem _salvage = default!; // Frontier
     [Dependency] private readonly ChatSystem _chatSystem = default!; // HARDLIGHT
 
     private const float ShuttleFTLMassThreshold = 50f; // Frontier
     private const float ShuttleFTLRange = 150f; // Frontier
 
     /// <summary>
-    /// Gets the expedition data for the station that owns the given console.
+    /// Gets or creates expedition data for the console's shuttle/grid.
+    /// Station data is intentionally ignored; consoles are fully independent.
     /// </summary>
     public SalvageExpeditionDataComponent? GetStationExpeditionData(EntityUid consoleUid)
     {
-        // Prefer resolving with a transform (more reliable right after restarts / docking changes)
-        EntityUid? station = null;
-        if (TryComp(consoleUid, out TransformComponent? xform))
-            station = _station.GetOwningStation(consoleUid, xform);
+        // Resolve the console's transform and grid; only grid-local data is used.
+        var xform = Transform(consoleUid);
+        var gridUid = xform.GridUid;
+        if (gridUid == null)
+            return null;
 
-        station ??= _station.GetOwningStation(consoleUid);
-
-        if (station != null && TryComp<SalvageExpeditionDataComponent>(station.Value, out var expeditionData))
-            return expeditionData;
-
-        // HARDLIGHT: Fallback for shuttle consoles after round restarts.
-        // Some purchased shuttles have their own station entity without expedition data.
-        // If this console is on a shuttle, allow using any station's expedition data
-        // so expeditions remain functional across restarts.
-        var gridUid = xform?.GridUid ?? Transform(consoleUid).GridUid;
-        if (gridUid != null && HasComp<ShuttleComponent>(gridUid.Value))
+        // Ensure and return grid-local expedition data (independent of stations).
+        if (TryComp(gridUid.Value, out SalvageExpeditionDataComponent? gridDataExisting))
         {
-            var query = EntityQueryEnumerator<SalvageExpeditionDataComponent, StationDataComponent>();
-            while (query.MoveNext(out var stationUid, out var data, out _))
+            if (gridDataExisting.Missions.Count == 0 && !gridDataExisting.GeneratingMissions && !gridDataExisting.Cooldown)
             {
-                return data; // Use the first available expedition data as a pragmatic fallback
+                GenerateMissions(gridDataExisting);
+                Dirty(gridUid.Value, gridDataExisting);
             }
+            return gridDataExisting;
         }
 
-        return null;
+        var gridData = EnsureComp<SalvageExpeditionDataComponent>(gridUid.Value);
+        gridData.Cooldown = false;
+        gridData.CanFinish = false;
+        gridData.ActiveMission = 0;
+        gridData.CooldownTime = TimeSpan.Zero;
+        gridData.NextOffer = _timing.CurTime;
+        if (gridData.Missions.Count == 0 && !gridData.GeneratingMissions)
+            GenerateMissions(gridData);
+        Dirty(gridUid.Value, gridData);
+        return gridData;
     }
 
     private void OnSalvageClaimMessage(EntityUid uid, SalvageExpeditionConsoleComponent component, ClaimSalvageMessage args)
@@ -107,7 +109,7 @@ public sealed partial class SalvageSystem
         }
 
         // Find the grid this console is on
-        if (!TryComp<TransformComponent>(uid, out var consoleXform))
+        if (!TryComp(uid, out TransformComponent? consoleXform))
         {
             Log.Error($"Console {ToPrettyString(uid)} has no transform component");
             PlayDenySound((uid, component));
@@ -117,7 +119,7 @@ public sealed partial class SalvageSystem
         }
 
         var ourGrid = consoleXform.GridUid;
-        if (ourGrid == null || !TryComp<MapGridComponent>(ourGrid, out var gridComp))
+        if (ourGrid == null || !TryComp(ourGrid, out MapGridComponent? gridComp))
         {
             Log.Error($"Console {ToPrettyString(uid)} grid {ourGrid} has no map grid component");
             PlayDenySound((uid, component));
@@ -143,12 +145,10 @@ public sealed partial class SalvageSystem
 
         // Mark as claimed and active - console handles its own state
         data.ActiveMission = args.Index;
-        data.CanFinish = false; // Will be set to true when FTL completes
+        // Do not forcibly reset CanFinish here; preserve existing early-leave availability
 
         var mission = GetMission(missionparams.MissionType, _prototypeManager.Index<SalvageDifficultyPrototype>(missionparams.Difficulty), missionparams.Seed);
-        // No timer - missions are always available for independent consoles
-        data.NextOffer = _timing.CurTime + TimeSpan.FromSeconds(_cooldown);
-        data.CooldownTime = TimeSpan.FromSeconds(_cooldown);
+        // Do not modify offer timers on claim to avoid regenerating/changing offers prematurely
 
         UpdateConsole((uid, component));
 
@@ -228,17 +228,18 @@ public sealed partial class SalvageSystem
         Log.Info($"Early expedition finish initiated on console {ToPrettyString(entity)}, FTL in {departTime} seconds");
 
         // Schedule the actual expedition completion after 20 seconds
-        entity.SpawnTimer(TimeSpan.FromSeconds(departTime), () =>
-        {
+            RobustTimer.Spawn(TimeSpan.FromSeconds(departTime), () =>
+            {
             // Verify the expedition still exists
-            if (!Exists(expeditionMapUid.Value) || !TryComp<SalvageExpeditionComponent>(expeditionMapUid.Value, out var expComp))
+                if (!Exists(expeditionMapUid.Value) || !TryComp(expeditionMapUid.Value, out SalvageExpeditionComponent? expComp))
             {
                 Log.Warning($"Expedition {expeditionMapUid} no longer exists when trying to finish early");
                 return;
             }
 
-            // Mark expedition as completed
-            expComp.Completed = true;
+            // Do NOT mark as completed here; reward should only be granted
+            // when mission objectives are actually complete. The runner logic
+            // updates expComp.Completed based on objectives.
 
             // Trigger the same FTL process as normal expedition timeout
             TriggerExpeditionFTLHome(expeditionMapUid.Value, expComp);
@@ -260,7 +261,7 @@ public sealed partial class SalvageSystem
         // Find shuttles on the expedition map and FTL them home
         while (shuttleQuery.MoveNext(out var shuttleUid, out var shuttle, out var shuttleXform))
         {
-            if (shuttleXform.MapUid != expeditionMapUid || HasComp<FTLComponent>(shuttleUid))
+            if (shuttleXform.MapUid != expeditionMapUid || TryComp(shuttleUid, out FTLComponent? _))
                 continue;
 
             // Find a destination on the default map
@@ -315,7 +316,7 @@ public sealed partial class SalvageSystem
         CleanupExpeditionConsoleState(expeditionMapUid);
 
         // Delete the expedition map after shuttles have departed
-        expeditionMapUid.SpawnTimer(TimeSpan.FromSeconds(ftlTime + 5f), () =>
+        RobustTimer.Spawn(TimeSpan.FromSeconds(ftlTime + 5f), () =>
         {
             if (Exists(expeditionMapUid))
             {
@@ -350,19 +351,26 @@ public sealed partial class SalvageSystem
         var data = GetStationExpeditionData(uid);
         if (data == null)
         {
-            Log.Warning($"No station expedition data found for console {ToPrettyString(uid)}");
-            // Create empty state for consoles without station
+            // If the console isn't on a grid, present a disabled state.
             var emptyState = new SalvageExpeditionConsoleState(
                 TimeSpan.Zero,
                 false,
-                true, // Disabled since no station
+                true,
                 0,
                 new List<SalvageMissionParams>(),
-                false, // canFinish
-                TimeSpan.Zero // cooldownTime
+                false,
+                TimeSpan.Zero
             );
             _ui.SetUiState(uid, SalvageConsoleUiKey.Expedition, emptyState);
             return;
+        }
+
+        // Sanitize ActiveMission against current mission list to avoid UI/index errors
+        if (data.ActiveMission != 0 && !data.Missions.ContainsKey(data.ActiveMission))
+        {
+            Log.Warning($"Console {ToPrettyString(uid)} had ActiveMission={data.ActiveMission} not in mission list; resetting.");
+            data.ActiveMission = 0;
+            data.CanFinish = false;
         }
 
         // HARDLIGHT: Only generate missions if truly needed and not already generating
@@ -380,8 +388,8 @@ public sealed partial class SalvageSystem
 
         var state = new SalvageExpeditionConsoleState(
             data.NextOffer,
-            data.Cooldown, // HARDLIGHT: Use cooldown state instead of ActiveMission for independent consoles
-            false, // Console is functional when station data exists
+            data.Claimed,
+            data.Cooldown,
             data.ActiveMission,
             data.Missions.Values.ToList(),
             data.CanFinish,
@@ -389,7 +397,7 @@ public sealed partial class SalvageSystem
         );
 
         _ui.SetUiState(component.Owner, SalvageConsoleUiKey.Expedition, state);
-        Log.Debug($"Updated console {ToPrettyString(uid)} with {state.Missions.Count} missions from station (Active: {data.ActiveMission}, Cooldown: {data.Cooldown})");
+        Log.Debug($"Updated console {ToPrettyString(uid)} with {state.Missions.Count} missions (Active: {data.ActiveMission}, Cooldown: {data.Cooldown})");
     }
 
     // HARDLIGHT: Direct mission spawning for console-specific expeditions

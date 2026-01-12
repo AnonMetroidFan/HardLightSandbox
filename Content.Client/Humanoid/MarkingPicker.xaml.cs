@@ -129,8 +129,7 @@ public sealed partial class MarkingPicker : Control
         IoCManager.InjectDependencies(this);
 
         _sprite = _entityManager.System<SpriteSystem>();
-        
-        // Subscribe to consent changes to refresh categories
+
         CMarkingCategoryButton.OnItemSelected += OnCategoryChange;
         CMarkingsUnused.OnItemSelected += item =>
             _selectedUnusedMarking = CMarkingsUnused[item.ItemIndex];
@@ -147,6 +146,23 @@ public sealed partial class MarkingPicker : Control
         CMarkingRankDown.OnPressed += _ => SwapMarkingDown();
 
         CMarkingSearch.OnTextChanged += args => Populate(args.Text);
+
+        //starlight start
+        Glowing.OnToggled += args =>
+        {
+            if (_selectedMarking is null) return;
+            var markingPrototype = (MarkingPrototype)_selectedMarking.Metadata!;
+            int markingIndex = _currentMarkings.FindIndexOf(_selectedMarkingCategory, markingPrototype.ID);
+
+            if (markingIndex < 0) return;
+
+            var marking = new Marking(_currentMarkings.Markings[_selectedMarkingCategory][markingIndex]);
+            marking.IsGlowing = args.Pressed;
+            _currentMarkings.Replace(_selectedMarkingCategory, markingIndex, marking);
+
+            OnMarkingColorChange?.Invoke(_currentMarkings);
+        };
+        //starlight end
     }
 
     private void SetupCategoryButtons()
@@ -395,7 +411,7 @@ public sealed partial class MarkingPicker : Control
     private void OnUsedMarkingSelected(ItemList.ItemListSelectedEventArgs item)
     {
         _selectedMarking = CMarkingsUsed[item.ItemIndex];
-        var prototype = (MarkingPrototype) _selectedMarking.Metadata!;
+        var prototype = (MarkingPrototype)_selectedMarking.Metadata!;
 
         if (prototype.ForcedColoring)
         {
@@ -410,12 +426,37 @@ public sealed partial class MarkingPicker : Control
         List<ColorSelectorSliders> colorSliders = new();
         for (int i = 0; i < prototype.Sprites.Count; i++)
         {
+            // first, check if the coloration is parented to another marking
+            // and if so, just kinda sorta dont display it
+            var skipdraw = false;
+            if (prototype.ColorLinks?.Count > 0)
+            {
+                var name = prototype.Sprites[i] switch
+                {
+                    SpriteSpecifier.Rsi rsi => rsi.RsiState,
+                    SpriteSpecifier.Texture texture => texture.TexturePath.Filename,
+                    _ => null
+                };
+
+                if (name != null && prototype.ColorLinks.ContainsKey(name))
+                {
+                    // dont show it, cus its parented to another marking
+                    skipdraw = true;
+                }
+            }
             var colorContainer = new BoxContainer
             {
                 Orientation = LayoutOrientation.Vertical,
             };
 
-            CMarkingColors.AddChild(colorContainer);
+            // so.
+            // the color selector sliders decide which destination color to modify
+            // based on its index in the list of color selectors.
+            // this is a problem if we, say, want to *not* show a certain slider
+            // cus then it'll modify the wrong color, unless the color happened to
+            // be in index 0.
+            if(!skipdraw)
+                CMarkingColors.AddChild(colorContainer);
 
             ColorSelectorSliders colorSelector = new ColorSelectorSliders();
             colorSliders.Add(colorSelector);
@@ -445,6 +486,18 @@ public sealed partial class MarkingPicker : Control
         }
 
         CMarkingColors.Visible = true;
+
+        //starlight start
+        if (_selectedMarking is null) return;
+        var markingPrototype = (MarkingPrototype)_selectedMarking.Metadata!;
+        int markingIndex = _currentMarkings.FindIndexOf(_selectedMarkingCategory, markingPrototype.ID);
+
+        if (markingIndex < 0) return;
+
+        var marking = _currentMarkings.Markings[_selectedMarkingCategory][markingIndex];
+
+        Glowing.Pressed = marking.IsGlowing;
+        //starlight end
     }
 
     private void ColorChanged(int colorIndex)
@@ -473,7 +526,7 @@ public sealed partial class MarkingPicker : Control
             return;
         }
 
-        var marking = (MarkingPrototype) _selectedUnusedMarking.Metadata!;
+        var marking = (MarkingPrototype)_selectedUnusedMarking.Metadata!;
         var markingObject = marking.AsMarking();
 
         // We need add hair markings in cloned set manually because _currentMarkings doesn't have it

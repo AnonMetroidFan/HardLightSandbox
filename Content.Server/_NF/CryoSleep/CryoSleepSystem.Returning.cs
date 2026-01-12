@@ -18,7 +18,6 @@ namespace Content.Server._NF.CryoSleep;
 public sealed partial class CryoSleepSystem
 {
     [Dependency] private readonly IConfigurationManager _configurationManager = default!;
-    [Dependency] private readonly IAdminLogManager _adminLogger = default!;
 
     private void InitReturning()
     {
@@ -90,7 +89,7 @@ public sealed partial class CryoSleepSystem
 
         RaiseLocalEvent(body, new CryosleepWakeUpEvent(cryopod, id), true);
 
-        _adminLogger.Add(LogType.LateJoin, LogImpact.Medium, $"{id.Value} has returned from cryosleep!");
+        //_adminLogger.Add(LogType.LateJoin, LogImpact.Medium, $"{id.Value} has returned from cryosleep!");
         return ReturnToBodyStatus.Success;
     }
 

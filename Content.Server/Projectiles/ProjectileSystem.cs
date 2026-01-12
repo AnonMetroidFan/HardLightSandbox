@@ -4,6 +4,8 @@ using Content.Server.Effects;
 using Content.Server.Weapons.Ranged.Systems;
 using Content.Shared.Camera;
 using Content.Shared.Damage;
+using Content.Shared.Damage.Components;
+using Content.Shared.Damage.Systems;
 using Content.Shared.Database;
 using Content.Shared.FixedPoint;
 using Content.Shared.Projectiles;
@@ -12,21 +14,22 @@ using Robust.Shared.Player;
 using Content.Shared.StatusEffect;
 using Content.Shared.Eye.Blinding.Components; // Frontier
 using Content.Shared.Eye.Blinding.Systems; // Frontier
+using Content.Shared.Physics;
+using Robust.Shared.Map;
+using Robust.Shared.Physics;
+using Robust.Shared.Physics.Components;
+using Robust.Shared.Physics.Dynamics; // Mono
+using Robust.Shared.Physics.Systems;
 using Robust.Shared.Random; // Frontier
 using Content.Server.Chat.Systems; // Frontier
-using Robust.Shared.Physics.Systems;
 using Robust.Shared.Timing;
-using Robust.Shared.Physics.Components;
 using System.Linq;
 using System.Numerics;
-using Content.Shared.Physics;
-using Robust.Shared.Physics;
 
 namespace Content.Server.Projectiles;
 
 public sealed class ProjectileSystem : SharedProjectileSystem
 {
-    [Dependency] private readonly IAdminLogManager _adminLogger = default!;
     [Dependency] private readonly ColorFlashEffectSystem _color = default!;
     [Dependency] private readonly DamageableSystem _damageableSystem = default!;
     [Dependency] private readonly DestructibleSystem _destructibleSystem = default!;
@@ -39,8 +42,10 @@ public sealed class ProjectileSystem : SharedProjectileSystem
     [Dependency] private readonly ChatSystem _chat = default!; // Frontier
 
     [Dependency] private readonly SharedPhysicsSystem _physics = default!;
-    [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly SharedTransformSystem _transformSystem = default!;
+
+    private EntityQuery<PhysicsComponent> _physQuery;
+    private EntityQuery<FixturesComponent> _fixQuery;
 
     /// <summary>
     /// Minimum velocity for a projectile to be considered for raycast hit detection.
@@ -51,53 +56,43 @@ public sealed class ProjectileSystem : SharedProjectileSystem
     public override void Initialize()
     {
         base.Initialize();
-        SubscribeLocalEvent<ProjectileComponent, StartCollideEvent>(OnStartCollide);
+
+        // Mono
+        _physQuery = GetEntityQuery<PhysicsComponent>();
+        _fixQuery = GetEntityQuery<FixturesComponent>();
     }
 
-    private void OnStartCollide(EntityUid uid, ProjectileComponent component, ref StartCollideEvent args)
+    public override DamageSpecifier? ProjectileCollide(Entity<ProjectileComponent, PhysicsComponent> projectile, EntityUid target, MapCoordinates? collisionCoordinates, bool predicted = false)
     {
-        // This is so entities that shouldn't get a collision are ignored.
-        if (args.OurFixtureId != ProjectileFixture || !args.OtherFixture.Hard
-            || component.ProjectileSpent || component is { Weapon: null, OnlyCollideWhenShot: true })
-            return;
-
-        var target = args.OtherEntity;
-        // it's here so this check is only done once before possible hit
-        var attemptEv = new ProjectileReflectAttemptEvent(uid, component, false);
-        RaiseLocalEvent(target, ref attemptEv);
-        if (attemptEv.Cancelled)
-        {
-            SetShooter(uid, component, target);
-            return;
-        }
-
-        var ev = new ProjectileHitEvent(component.Damage * _damageableSystem.UniversalProjectileDamageModifier, target, component.Shooter);
-        RaiseLocalEvent(uid, ref ev);
+        var (uid, component, ourBody) = projectile;
+        // Check if projectile is already spent (server-specific check)
+        if (component.ProjectileSpent)
+            return null;
 
         var otherName = ToPrettyString(target);
-        var damageRequired = _destructibleSystem.DestroyedAt(target);
-        if (TryComp<DamageableComponent>(target, out var damageableComponent))
+        // Get damage required for destructible before base applies damage
+        var damageRequired = FixedPoint2.Zero;
+        if (TryComp(target, out DamageableComponent? damageableComponent))
         {
+            damageRequired = _destructibleSystem.DestroyedAt(target);
             damageRequired -= damageableComponent.TotalDamage;
             damageRequired = FixedPoint2.Max(damageRequired, FixedPoint2.Zero);
         }
-        var modifiedDamage = _damageableSystem.TryChangeDamage(target, ev.Damage, component.IgnoreResistances, damageable: damageableComponent, origin: component.Shooter);
         var deleted = Deleted(target);
 
-        if (modifiedDamage is not null && EntityManager.EntityExists(component.Shooter))
-        {
-            if (modifiedDamage.AnyPositive() && !deleted)
-            {
-                _color.RaiseEffect(Color.Red, new List<EntityUid> { target }, Filter.Pvs(target, entityManager: EntityManager));
-            }
+        // Call base implementation to handle damage application and other effects
+        var modifiedDamage = base.ProjectileCollide(projectile, target, collisionCoordinates, predicted);
 
-            _adminLogger.Add(LogType.BulletHit,
-                LogImpact.Medium,
-                $"Projectile {ToPrettyString(uid):projectile} shot by {ToPrettyString(component.Shooter!.Value):user} hit {otherName:target} and dealt {modifiedDamage.GetTotal():damage} damage");
+        if (modifiedDamage == null)
+        {
+            component.ProjectileSpent = true;
+            if (component.DeleteOnCollide && component.ProjectileSpent)
+                QueueDel(uid);
+            return null;
         }
 
-        // If penetration is to be considered, we need to do some checks to see if the projectile should stop.
-        if (modifiedDamage is not null && component.PenetrationThreshold != 0)
+        // Server-specific logic: penetration
+        if (component.PenetrationThreshold != 0)
         {
             // If a damage type is required, stop the bullet if the hit entity doesn't have that type.
             if (component.PenetrationDamageTypeRequirement != null)
@@ -111,6 +106,7 @@ public sealed class ProjectileSystem : SharedProjectileSystem
                         break;
                     }
                 }
+
                 if (stopPenetration)
                     component.ProjectileSpent = true;
             }
@@ -136,21 +132,12 @@ public sealed class ProjectileSystem : SharedProjectileSystem
             component.ProjectileSpent = true;
         }
 
-        if (!deleted)
+        if (component.RandomBlindChance > 0.0f && _random.Prob(component.RandomBlindChance)) // Frontier - bb make you go blind
         {
-            _guns.PlayImpactSound(target, modifiedDamage, component.SoundHit, component.ForceSound);
-
-            if (!args.OurBody.LinearVelocity.IsLengthZero())
-                _sharedCameraRecoil.KickCamera(target, args.OurBody.LinearVelocity.Normalized());
+            TryBlind(target);
         }
 
-        if (component.DeleteOnCollide && component.ProjectileSpent)
-            QueueDel(uid);
-
-        if (component.ImpactEffect != null && TryComp(uid, out TransformComponent? xform))
-        {
-            RaiseNetworkEvent(new ImpactEffectEvent(component.ImpactEffect, GetNetCoordinates(xform.Coordinates)), Filter.Pvs(xform.Coordinates, entityMan: EntityManager));
-        }
+        return modifiedDamage;
     }
 
     public override void Update(float frameTime)
@@ -214,7 +201,7 @@ public sealed class ProjectileSystem : SharedProjectileSystem
                     SetShooter(uid, projectileComp, hitEntity);
                     _physics.SetLinearVelocity(uid, -currentVelocity, body: physicsComp);
                     // Potentially change angle if your projectile component uses it for orientation
-                    if (TryComp<TransformComponent>(uid, out var projXform))
+                    if (TryComp(uid, out TransformComponent? projXform))
                         _transformSystem.SetLocalRotation(projXform, currentVelocity.ToAngle() + new Angle(MathF.PI));
                     continue; // Done with this projectile if reflected
                 }
@@ -245,9 +232,9 @@ public sealed class ProjectileSystem : SharedProjectileSystem
                         _color.RaiseEffect(Color.Red, new List<EntityUid> { hitEntity }, Filter.Pvs(hitEntity, entityManager: EntityManager));
                     }
 
-                    _adminLogger.Add(LogType.BulletHit,
+                    /* _adminLogger.Add(LogType.BulletHit,
                         HasComp<ActorComponent>(hitEntity) ? LogImpact.Extreme : LogImpact.High,
-                        $"Projectile {ToPrettyString(uid):projectile} (raycast) shot by {ToPrettyString(projectileComp.Shooter!.Value):user} hit {otherName:target} and dealt {modifiedDamage.GetTotal():damage} damage");
+                        $"Projectile {ToPrettyString(uid):projectile} (raycast) shot by {ToPrettyString(projectileComp.Shooter!.Value):user} hit {otherName:target} and dealt {modifiedDamage.GetTotal():damage} damage"); */
                 }
 
                 // Penetration Logic
@@ -323,7 +310,7 @@ public sealed class ProjectileSystem : SharedProjectileSystem
 
     private void TryBlind(EntityUid target) // Frontier - bb make you go blind
     {
-        if (!TryComp<BlindableComponent>(target, out var blindable) || blindable.IsBlind)
+        if (!TryComp(target, out BlindableComponent? blindable) || blindable.IsBlind)
             return;
 
         var eyeProtectionEv = new GetEyeProtectionEvent();

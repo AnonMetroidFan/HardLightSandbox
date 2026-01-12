@@ -17,7 +17,6 @@ using Content.Server.Shuttles.Events;
 using Content.Server.Shuttles.Systems;
 using Content.Server.Station.Components;
 using Content.Server.Station.Systems;
-using Content.Server.GameTicking;
 using Content.Server.GameTicking.Presets;
 using Content.Server.GameTicking.Rules;
 using Content.Server.GameTicking.Events;
@@ -32,7 +31,6 @@ using Content.Shared.Examine;
 using Content.Shared.Random.Helpers;
 using Content.Shared.Shuttles.Components;
 using Content.Shared.Shuttles.Events;
-using Content.Shared.GameTicking;
 using Robust.Server.GameObjects;
 using Robust.Shared.Configuration;
 using Robust.Shared.EntitySerialization.Systems;
@@ -72,8 +70,8 @@ public sealed class PublicTransitSystem : EntitySystem
     private const float ShuttleSpawnBuffer = 4f;
     private const ushort TransitShuttleScreenFrequency = 10000;
 
-    private bool _stationsGenerated = false;
-    private bool _arrivalsReady = false;
+    // private bool _stationsGenerated = false;
+    // private bool _arrivalsReady = false;
 
     public override void Initialize()
     {
@@ -296,7 +294,7 @@ public sealed class PublicTransitSystem : EntitySystem
 
     public void OnStationsGenerated(StationsGeneratedEvent ev)
     {
-        _stationsGenerated = true;
+        // _stationsGenerated = true;
         if (TryComp<SectorPublicTransitComponent>(_sectorService.GetServiceEntity(), out var publicTransit))
         {
             SetupPublicTransit(publicTransit);
@@ -698,8 +696,8 @@ public sealed class PublicTransitSystem : EntitySystem
         }
 
         // Reset state
-        _stationsGenerated = false;
-        _arrivalsReady = false;
+        // _stationsGenerated = false;
+        // _arrivalsReady = false;
 
         // Reset routes created flag
         if (TryComp<SectorPublicTransitComponent>(_sectorService.GetServiceEntity(), out var publicTransit))
@@ -709,8 +707,8 @@ public sealed class PublicTransitSystem : EntitySystem
     private void OnRoundStarting(RoundStartingEvent ev)
     {
         // Add any logic needed for round starting here.
-        _stationsGenerated = false;
-        _arrivalsReady = false;
+        // _stationsGenerated = false;
+        // _arrivalsReady = false;
     }
 }
 

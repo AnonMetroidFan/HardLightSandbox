@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Runtime.InteropServices.Marshalling;
 using Robust.Shared.Configuration;
 
 namespace Content.Shared.HL.CCVar;
@@ -48,7 +50,7 @@ public sealed class HLCCVars
     /// Maximum number of rounds to keep persistence data for
     /// </summary>
     public static readonly CVarDef<int> RoundPersistenceMaxRounds =
-        CVarDef.Create("hardlight.round_persistence.max_rounds", 10, CVar.SERVERONLY);
+        CVarDef.Create("hardlight.round_persistence.max_rounds", 500, CVar.SERVERONLY);
 
     /// <summary>
     /// Enable verbose logging for the persistence system
@@ -93,4 +95,10 @@ public sealed class HLCCVars
 
     public static readonly CVarDef<bool> ShipLoadLogProgress =
         CVarDef.Create("hardlight.shipload.log_progress", false, CVar.SERVERONLY, desc: "Log ship load progress each tick.");
+
+    /// <summary>
+    ///     Goobstation: Whether or not to allow mech weaponry to be used out of mechs.
+    /// </summary>
+    public static readonly CVarDef<bool> MechGunOutsideMech =
+        CVarDef.Create("mech.gun_outside_mech", false, CVar.SERVERONLY, desc: "If true, allows mech weapons to be used outside of mechs.");
 }

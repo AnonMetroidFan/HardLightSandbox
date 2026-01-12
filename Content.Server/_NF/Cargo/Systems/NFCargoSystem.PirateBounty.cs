@@ -18,6 +18,7 @@ using JetBrains.Annotations;
 using Robust.Shared.Containers;
 using Robust.Shared.Random;
 using Robust.Shared.Utility;
+using Robust.Shared.Prototypes;
 
 namespace Content.Server._NF.Cargo.Systems;
 
@@ -25,8 +26,7 @@ public sealed partial class NFCargoSystem
 {
     [Dependency] private readonly NameIdentifierSystem _nameIdentifier = default!;
 
-    [ValidatePrototypeId<NameIdentifierGroupPrototype>]
-    private const string PirateBountyNameIdentifierGroup = "Bounty"; // Use the bounty name ID group (0-999) for now.
+    private static readonly ProtoId<NameIdentifierGroupPrototype> PirateBountyNameIdentifierGroup = new("Bounty"); // Use the bounty name ID group (0-999) for now.
 
     private EntityQuery<ContainerManagerComponent> _containerQuery;
     private EntityQuery<PirateBountyLabelComponent> _pirateBountyLabelQuery;
@@ -260,7 +260,7 @@ public sealed partial class NFCargoSystem
 
         _nameIdentifier.GenerateUniqueName(serviceId, PirateBountyNameIdentifierGroup, out var randomVal); // Need a string ID for internal name, probably doesn't need to be outward facing.
         component.Bounties.Add(new PirateBountyData(bounty, randomVal, false));
-        _adminLogger.Add(LogType.Action, LogImpact.Low, $"Added pirate bounty \"{bounty.ID}\" (id:{component.TotalBounties}) to service {ToPrettyString(serviceId)}");
+        //_adminLogger.Add(LogType.Action, LogImpact.Low, $"Added pirate bounty \"{bounty.ID}\" (id:{component.TotalBounties}) to service {ToPrettyString(serviceId)}");
         component.TotalBounties++;
         return true;
     }

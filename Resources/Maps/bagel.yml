@@ -4,8 +4,8 @@ meta:
   engineVersion: 267.3.0
   forkId: ""
   forkVersion: ""
-  time: 11/24/2025 23:16:24
-  entityCount: 24856
+  time: 12/29/2025 21:29:24
+  entityCount: 24865
 maps:
 - 1
 grids:
@@ -81,14 +81,13 @@ entities:
   - uid: 1
     components:
     - type: MetaData
+      name: Map Entity
     - type: Transform
     - type: Map
       mapPaused: True
     - type: GridTree
     - type: Broadphase
     - type: OccluderTree
-    - type: Parallax
-      parallax: BagelStation
   - uid: 2
     components:
     - type: MetaData
@@ -123740,16 +123739,6 @@ entities:
     - type: Transform
       pos: 5.5,-7.5
       parent: 2
-    - type: ContainerContainer
-      containers:
-        machine_board: !type:Container
-          showEnts: False
-          occludes: True
-          ents: []
-        machine_parts: !type:Container
-          showEnts: False
-          occludes: True
-          ents: []
 - proto: Shovel
   entities:
   - uid: 21225
@@ -129897,6 +129886,13 @@ entities:
     - type: Transform
       pos: 25.5,-36.5
       parent: 2
+- proto: SpawnMobArcticFoxSeb
+  entities:
+  - uid: 350
+    components:
+    - type: Transform
+      pos: -42.5,-6.5
+      parent: 2
 - proto: SpawnMobBandito
   entities:
   - uid: 22154
@@ -130175,6 +130171,20 @@ entities:
     - type: Transform
       pos: -26.5,-29.5
       parent: 2
+- proto: SpawnPointEngineeringQuadborg
+  entities:
+  - uid: 344
+    components:
+    - type: Transform
+      pos: -33.5,14.5
+      parent: 2
+- proto: SpawnPointForensicMantis
+  entities:
+  - uid: 349
+    components:
+    - type: Transform
+      pos: -50.5,3.5
+      parent: 2
 - proto: SpawnPointHeadOfPersonnel
   entities:
   - uid: 22199
@@ -130311,6 +130321,13 @@ entities:
     - type: Transform
       pos: 36.5,-17.5
       parent: 2
+- proto: SpawnPointMedicalQuadborg
+  entities:
+  - uid: 343
+    components:
+    - type: Transform
+      pos: -31.5,12.5
+      parent: 2
 - proto: SpawnPointMercenary
   entities:
   - uid: 22223
@@ -130380,6 +130397,13 @@ entities:
     - type: Transform
       pos: 49.5,23.5
       parent: 2
+- proto: SpawnPointPrisoner
+  entities:
+  - uid: 347
+    components:
+    - type: Transform
+      pos: -10.5,-14.5
+      parent: 2
 - proto: SpawnPointQuartermaster
   entities:
   - uid: 22234
@@ -130427,6 +130451,13 @@ entities:
     components:
     - type: Transform
       pos: -40.5,8.5
+      parent: 2
+- proto: SpawnPointSalvageQuadborg
+  entities:
+  - uid: 345
+    components:
+    - type: Transform
+      pos: -32.5,14.5
       parent: 2
 - proto: SpawnPointSalvageSpecialist
   entities:
@@ -130521,6 +130552,20 @@ entities:
     - type: Transform
       pos: -25.5,-17.5
       parent: 2
+- proto: SpawnPointSecurityQuadborg
+  entities:
+  - uid: 346
+    components:
+    - type: Transform
+      pos: -31.5,14.5
+      parent: 2
+- proto: SpawnPointServiceQuadborg
+  entities:
+  - uid: 342
+    components:
+    - type: Transform
+      pos: -33.5,12.5
+      parent: 2
 - proto: SpawnPointServiceWorker
   entities:
   - uid: 22259
@@ -130583,6 +130628,13 @@ entities:
     components:
     - type: Transform
       pos: 2.5,20.5
+      parent: 2
+- proto: SpawnPointValet
+  entities:
+  - uid: 348
+    components:
+    - type: Transform
+      pos: -26.5,-23.5
       parent: 2
 - proto: SpawnPointWarden
   entities:

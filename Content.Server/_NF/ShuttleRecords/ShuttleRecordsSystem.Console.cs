@@ -19,7 +19,6 @@ namespace Content.Server._NF.ShuttleRecords;
 public sealed partial class ShuttleRecordsSystem
 {
     [Dependency] private readonly BankSystem _bank = default!;
-    [Dependency] private readonly SharedTransformSystem _transform = default!;
     public void InitializeShuttleRecords()
     {
         SubscribeLocalEvent<ShuttleRecordsConsoleComponent, BoundUIOpenedEvent>(OnConsoleUiOpened);
@@ -134,11 +133,11 @@ public sealed partial class ShuttleRecordsSystem
         }
     }
 
-    private List<DockedGridEntry> GetDockedGridsForConsole(EntityUid consoleUid)
-    {
-        var list = new List<DockedGridEntry>();
-        if (!TryComp<TransformComponent>(consoleUid, out var xform) || xform.GridUid is not { } consoleGrid)
-            return list;
+        private List<DockedGridEntry> GetDockedGridsForConsole(EntityUid consoleUid)
+        {
+            var list = new List<DockedGridEntry>();
+            if (!TryComp(consoleUid, out TransformComponent? xform) || xform.GridUid is not { } consoleGrid)
+                return list;
 
         var xformQuery = GetEntityQuery<TransformComponent>();
         var dockQuery = GetEntityQuery<Content.Server.Shuttles.Components.DockingComponent>();
@@ -177,7 +176,7 @@ public sealed partial class ShuttleRecordsSystem
         }
 
         // Prevent overwriting an existing deed on the ID
-        if (HasComp<ShuttleDeedComponent>(targetId))
+        if (_entityManager.TryGetComponent<ShuttleDeedComponent>(targetId, out _))
         {
             _popup.PopupEntity(Loc.GetString("shipyard-console-already-deeded"), actor);
             _audioSystem.PlayPredicted(component.ErrorSound, uid, null, AudioParams.Default.WithMaxDistance(5f));
@@ -192,9 +191,9 @@ public sealed partial class ShuttleRecordsSystem
         }
 
         // Ensure still docked to this console's grid
-        if (!TryComp<TransformComponent>(uid, out var consoleXform) || consoleXform.GridUid == null)
+        if (!TryComp(uid, out TransformComponent? consoleXform) || consoleXform.GridUid == null)
             return;
-        if (!TryComp<TransformComponent>(gridUid.Value, out var gridXform) || gridXform.GridUid == null)
+        if (!TryComp(gridUid.Value, out TransformComponent? gridXform) || gridXform.GridUid == null)
             return;
 
         if (!IsDockedWith(consoleXform.GridUid.Value, gridXform.GridUid.Value))
@@ -298,10 +297,10 @@ public sealed partial class ShuttleRecordsSystem
 
         // Add to admin logs.
         var shuttleName = record.Name + " " + record.Suffix;
-        _adminLogger.Add(
+        /* _adminLogger.Add(
             LogType.ShuttleRecordsUsage,
             LogImpact.Low,
-            $"{ToPrettyString(args.Actor):actor} used {transactionPrice} from station bank account to copy shuttle deed {shuttleName}.");
+            $"{ToPrettyString(args.Actor):actor} used {transactionPrice} from station bank account to copy shuttle deed {shuttleName}."); */
         _audioSystem.PlayPredicted(component.ConfirmSound, uid, null, AudioParams.Default.WithMaxDistance(5f));
     }
 

@@ -6,3 +6,6 @@ research-technology-medium-shuttle-weapons = Medium Shuttle Structures
 research-technology-heavy-shuttle-weapons = Heavy Shuttle Structures
 research-technology-capital-shuttle-weapons = Capital Shuttle Structures
 research-technology-shuttle-weapon-materials = Shuttle Structure Materials
+research-technology-cybernetic-warfare = Cybernetic Warfare
+research-technology-civilian-shuttle-weapons = Civilian Shuttle Structures
+research-technology-high-pressure-atmospherics = High-Pressure Atmospherics

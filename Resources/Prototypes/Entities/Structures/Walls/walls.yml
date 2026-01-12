@@ -228,8 +228,6 @@
     cost: 6
     delay: 8
     fx: EffectRCDDeconstruct8
-  - type: RadiationBlocker # Goobstation
-    resistance: 40
   - type: Destructible
     thresholds:
     - trigger:
@@ -389,8 +387,6 @@
   - type: Construction
     graph: Girder
     node: goldWall
-  - type: RadiationBlocker # Goobstation
-    resistance: 10
   - type: RCDDeconstructable
     cost: 6
     delay: 8
@@ -495,7 +491,7 @@
     key: walls
     base: plasma
   - type: RadiationBlocker
-    resistance: 10
+    resistance: 5
 
 - type: entity
   parent: BaseWall
@@ -1013,7 +1009,7 @@
     thresholds:
     - trigger:
         !type:DamageTrigger
-        damage: 3600 # Mono - wall buff - 6x
+        damage: 400 # Mono - wall buff - 6x
       behaviors:
         - !type:DoActsBehavior
           acts: [ "Destruction" ]
@@ -1022,7 +1018,7 @@
             collection: MetalSlam
     - trigger:
         !type:DamageTrigger
-        damage: 1800 # Mono - wall buff - 6x
+        damage: 300 # Mono - wall buff - 6x
       behaviors:
       - !type:ChangeConstructionNodeBehavior
         node: girder
@@ -1031,6 +1027,8 @@
           collection: MetalSlam
       - !type:DoActsBehavior
         acts: ["Destruction"]
+  - type: Reflect    # Frontier
+    reflectProb: 0.9 # Hardlight change, down to 0.2 from Frontier's 1
   - type: Construction
     graph: Girder
     node: diagonalshuttleWall
@@ -1051,7 +1049,7 @@
     thresholds:
     - trigger:
         !type:DamageTrigger
-        damage: 3600 # Mono - wall buff - 6x
+        damage: 400 # Mono - wall buff - 6x
       behaviors:
       - !type:DoActsBehavior
         acts: ["Destruction"]
@@ -1060,7 +1058,7 @@
           collection: MetalSlam
     - trigger:
         !type:DamageTrigger
-        damage: 2400 # Mono - wall buff - 6x
+        damage: 300 # Mono - wall buff - 6x
       behaviors:
       - !type:PlaySoundBehavior
         sound:
@@ -1100,8 +1098,19 @@
     cost: 6 #Frontier
     delay: 8 #Frontier
     fx: EffectRCDDeconstruct8 #Frontier
-#  - type: Reflect # Frontier
-#    reflectProb: 1 # Frontier
+  - type: Reflect    # Frontier
+    reflectProb: 0.9 # Hardlight change, down to 0.2 from Frontier's 1
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.5,-0.5,0.5,0.5"
+        mask:
+        - FullTileMask
+        layer:
+        - WallLayer
+        density: 2000
 
 - type: entity
   parent: BaseWall
@@ -1145,8 +1154,8 @@
   - type: IconSmooth
     key: walls
     base: state
-#  - type: Reflect # Frontier
-#    reflectProb: 1 # Frontier
+  - type: Reflect    # Frontier
+    reflectProb: 0.2 # Hardlight change, down to 0.2 from Frontier's 1
 
 - type: entity
   parent: BaseWall
@@ -1278,6 +1287,33 @@
         acts: ["Destruction"]
 
 - type: entity
+  parent: WallPlastitanium
+  id: WallXenoborg
+  name: xenoborg wall
+  components:
+  - type: Sprite
+    sprite: Structures/Walls/xenoborg.rsi
+  - type: Icon
+    sprite: Structures/Walls/xenoborg.rsi
+  - type: IconSmooth
+    key: walls
+    base: xenoborg
+
+- type: entity
+  parent: WallPlastitaniumDiagonal
+  id: WallXenoborgDiagonal
+  name: xenoborg wall
+  suffix: diagonal
+  components:
+  - type: Sprite
+    drawdepth: Walls
+    sprite: Structures/Walls/xenoborg_diagonal.rsi
+    state: state0
+  - type: Icon
+    sprite: Structures/Walls/xenoborg_diagonal.rsi
+    state: state0
+
+- type: entity
   parent: BaseWall
   id: WallUranium
   name: uranium wall
@@ -1315,7 +1351,7 @@
     key: walls
     base: uranium
   - type: RadiationBlocker
-    resistance: 20
+    resistance: 6
   - type: RCDDeconstructable #Frontier
     cost: 6 #Frontier
     delay: 8 #Frontier
