@@ -64,6 +64,9 @@
   parent: HL_LizardHead
   name: Blue Rain Lizard
   components:
+  - type: NpcFactionMember
+    factions:
+    - Lizard
   - type: Sprite
     drawdepth: Mobs
     sprite: _HL/Lizard/lizard.rsi
@@ -91,7 +94,7 @@
     staticScale: 0.6
     useTaperSystem: true
     taperOffset: 3
-    texturePath: /Textures/_HL/Lizard/lizard.rsi/segment.png
+    texturePath: /Textures/_HL/Lizard/lizard.rsi/bluesegment.png
     shaderId: unshaded
 # - type: entity
   # id: BlueRainLizardBody
@@ -145,10 +148,135 @@
     # rotationOffsetDeg: -90
 
 - type: entity
+  id: greenRainLizard
+  parent: HL_LizardHead
+  name: Green Rain Lizard
+  components:
+  - type: NpcFactionMember
+    factions:
+    - Lizard
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: _HL/Lizard/lizard.rsi
+    layers:
+    - map: [ "enum.DamageStateVisualLayers.Base" ]
+      state: lizardheadclosed
+      scale: 0.8, 0.8
+      color: "#14fc00"
+      shader: unshaded
+  - type: SegmentedEntity
+    numberOfSegments: 3
+    initialRadius: 0.5
+    staticOffset: 0.5
+    staticScale: 0.5
+    initialSegmentId: greenRainLizardInitialSegment
+    segmentId: greenRainLizardSegment
+    useTaperSystem: true
+    taperOffset: 3
+    texturePath: /Textures/_HL/Lizard/lizard.rsi/greensegment.png
+    shaderId: unshaded
+
+- type: entity
+  id: pinkRainLizard
+  parent: HL_LizardHead
+  name: Pink Rain Lizard
+  components:
+  - type: NpcFactionMember
+    factions:
+    - Lizard
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: _HL/Lizard/lizard.rsi
+    layers:
+    - map: [ "enum.DamageStateVisualLayers.Base" ]
+      state: lizardheadclosed
+      scale: 0.8, 0.8
+      color: "#fc14a8"
+      shader: unshaded
+  - type: SegmentedEntity
+    numberOfSegments: 3
+    initialRadius: 0.5
+    staticOffset: 0.5
+    staticScale: 0.5
+    initialSegmentId: greenRainLizardInitialSegment
+    segmentId: greenRainLizardSegment
+    useTaperSystem: true
+    taperOffset: 3
+    texturePath: /Textures/_HL/Lizard/lizard.rsi/pinksegment.png
+    shaderId: unshaded
+
+- type: entity
+  id: whiteRainLizard
+  parent: HL_LizardHead
+  name: White Rain Lizard
+  components:
+  - type: NpcFactionMember
+    factions:
+    - Lizard
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: _HL/Lizard/lizard.rsi
+    layers:
+    - map: [ "enum.DamageStateVisualLayers.Base" ]
+      state: lizardheadclosed
+      scale: 0.9, 0.9
+      color: "#fcfcfc"
+      shader: unshaded
+  - type: SegmentedEntity
+    numberOfSegments: 3
+    initialRadius: 0.6
+    staticOffset: 0.7
+    staticScale: 0.6
+    initialSegmentId: greenRainLizardInitialSegment
+    segmentId: greenRainLizardSegment
+    useTaperSystem: true
+    taperOffset: 3
+    texturePath: /Textures/_HL/Lizard/lizard.rsi/segment.png
+    shaderId: unshaded
+  - type: Stealth
+    enabledOnDeath: false
+    maxVisibility: 1.2
+  - type: StealthOnMove
+    passiveVisibilityRate: -0.25
+    movementVisibilityRate: 0.25
+
+- type: entity
+  id: cyanRainLizard
+  parent: HL_LizardHead
+  name: Cyan Rain Lizard
+  components:
+  - type: NpcFactionMember
+    factions:
+    - Lizard
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: _HL/Lizard/lizard.rsi
+    layers:
+    - map: [ "enum.DamageStateVisualLayers.Base" ]
+      state: lizardheadclosed
+      scale: 0.8, 0.8
+      color: "#16a59c"
+      shader: unshaded
+  - type: SegmentedEntity
+    numberOfSegments: 3
+    initialRadius: 0.5
+    staticOffset: 0.6
+    staticScale: 0.5
+    initialSegmentId: greenRainLizardInitialSegment
+    segmentId: greenRainLizardSegment
+    useTaperSystem: true
+    taperOffset: 3
+    texturePath: /Textures/_HL/Lizard/lizard.rsi/cyanbacksegment.png
+    shaderId: unshaded
+
+- type: entity
   id: RedRainLizard
   parent: HL_LizardHead
   name: Red Rain Lizard
   components:
+  - type: NpcFactionMember
+    factions:
+    - Lizard
   - type: Sprite
     drawdepth: Mobs
     sprite: _HL/Lizard/lizard.rsi
@@ -160,14 +288,14 @@
       shader: unshaded
   - type: SegmentedEntity
     numberOfSegments: 3
-    initialRadius: 0.8
+    initialRadius: 0.7
     staticOffset: 1
-    staticScale: 1.2
+    staticScale: 0.8
     initialSegmentId: RedRainLizardInitialSegment
     segmentId: RedRainLizardSegment
     useTaperSystem: true
     taperOffset: 3
-    texturePath: /Textures/_HL/Lizard/lizard.rsi/segment.png
+    texturePath: /Textures/_HL/Lizard/lizard.rsi/redsegment.png
     shaderId: unshaded
     
 # - type: entity

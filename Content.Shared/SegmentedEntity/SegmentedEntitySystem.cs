@@ -14,6 +14,7 @@ using Robust.Shared.Physics.Components;
 using Robust.Shared.Prototypes;
 using System.Numerics;
 using Robust.Shared.Network;
+using Robust.Shared.Containers;
 
 namespace Content.Shared.SegmentedEntity;
 
@@ -35,6 +36,8 @@ public sealed partial class LamiaSystem : EntitySystem
         //Parent subscriptions
         // Hitscan filtering is disabled in this codebase.
         SubscribeLocalEvent<SegmentedEntityComponent, InsertIntoEntityStorageAttemptEvent>(OnLamiaStorageInsertAttempt);
+        SubscribeLocalEvent<SegmentedEntityComponent, EntInsertedIntoContainerMessage>(OnInsertedIntoContainer);
+        SubscribeLocalEvent<SegmentedEntityComponent, EntRemovedFromContainerMessage>(OnRemovedFromContainer);
         SubscribeLocalEvent<SegmentedEntityComponent, DidEquipEvent>(OnDidEquipEvent);
         SubscribeLocalEvent<SegmentedEntityComponent, DidUnequipEvent>(OnDidUnequipEvent);
         SubscribeLocalEvent<SegmentedEntityComponent, ComponentInit>(OnInit);
@@ -251,6 +254,27 @@ public sealed partial class LamiaSystem : EntitySystem
     private void OnSegmentStorageInsertAttempt(EntityUid uid, SegmentedEntitySegmentComponent comp, ref InsertIntoEntityStorageAttemptEvent args)
     {
         args.Cancelled = true;
+    }
+
+    private void OnInsertedIntoContainer(EntityUid uid, SegmentedEntityComponent component, EntInsertedIntoContainerMessage args)
+    {
+        // Only delete segments when entering actual storage (trash bins, lockers, etc), not action/grid/map containers
+        if (args.Container.ID == "storagebase" || 
+            (Exists(args.Container.Owner) && HasComp<SharedEntityStorageComponent>(args.Container.Owner)))
+        {
+            DeleteSegments(component);
+        }
+    }
+
+    private void OnRemovedFromContainer(EntityUid uid, SegmentedEntityComponent component, EntRemovedFromContainerMessage args)
+    {
+        // Respawn segments when exiting storage containers
+        if (component.Segments.Count == 0 && 
+            (args.Container.ID == "storagebase" || 
+            (Exists(args.Container.Owner) && HasComp<SharedEntityStorageComponent>(args.Container.Owner))))
+        {
+            SpawnSegments(uid, component);
+        }
     }
 
     private void OnDidEquipEvent(EntityUid equipee, SegmentedEntityComponent component, DidEquipEvent args)
