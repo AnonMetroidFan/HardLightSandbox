@@ -4,6 +4,8 @@ using Content.Shared.Humanoid.Markings;
 using Content.Client.Resources;
 using Robust.Client.ResourceManagement;
 using Robust.Client.Graphics;
+using Robust.Shared.Prototypes;
+using Robust.Shared.IoC;
 using Robust.Shared.Enums;
 using System.Numerics;
 using System.Linq;
@@ -23,6 +25,7 @@ public sealed class SnakeOverlay : Overlay
     private readonly IEntityManager _entManager;
     private readonly SharedTransformSystem _transform;
     private readonly SharedHumanoidAppearanceSystem _humanoid = default!;
+    private readonly IPrototypeManager _prototypes = default!;
 
     // Look through these carefully. WorldSpace is useful for debugging. Note that this defaults to "screen space" which breaks when you try and get the world handle.
     public override OverlaySpace Space => OverlaySpace.WorldSpaceEntities;
@@ -37,6 +40,7 @@ public sealed class SnakeOverlay : Overlay
         // with ent manager we can fetch our other entity systems
         _transform = _entManager.EntitySysManager.GetEntitySystem<SharedTransformSystem>();
         _humanoid = _entManager.EntitySysManager.GetEntitySystem<SharedHumanoidAppearanceSystem>();
+        _prototypes = IoCManager.Resolve<IPrototypeManager>();
 
         // draw at drawdepth 3
         ZIndex = 3;
@@ -94,6 +98,16 @@ public sealed class SnakeOverlay : Overlay
         Vector2? lastPtCCW = null;
 
         var tex = _resourceCache.GetTexture(lamia.TexturePath);
+
+        // Apply optional shader if specified and available.
+        ShaderInstance? shaderInstance = null;
+        if (!string.IsNullOrWhiteSpace(lamia.ShaderId))
+        {
+            if (_prototypes.TryIndex<ShaderPrototype>(lamia.ShaderId, out var shaderProto))
+                shaderInstance = shaderProto.Instance();
+        }
+        if (shaderInstance != null)
+            handle.UseShader(shaderInstance);
 
         int i = 1;
         // do each segment except the last one normally
@@ -167,5 +181,9 @@ public sealed class SnakeOverlay : Overlay
 
         // Draw all of the triangles we just pit in at once
         handle.DrawPrimitives(DrawPrimitiveTopology.TriangleList, texture: tex, verts.ToArray().AsSpan(), color);
+
+        // Reset shader to default after drawing.
+        if (shaderInstance != null)
+            handle.UseShader(null);
     }
 }

@@ -49,42 +49,48 @@
     
 - type: entity
   id: RedRainLizardInitialSegment
+  parent: LamiaInitialSegment
   name: Red Rain Lizard Segment (Initial)
   categories: [ HideSpawnMenu ]
   components:
-  - type: Sprite
-    sprite: _HL/Lizard/lizard.rsi
-    layers:
-    - map: [ "enum.DamageStateVisualLayers.Base" ]
-      state: segment
-      color: "#d30f0f"
-      shader: unshaded
-    scale: 1.2, 1.2
-  # - type: Fixtures
-    # fixtures:
-      # fix1:
-        # shape:
-          # !type:PhysShapeCircle
-          # radius: 0.35
-        # density: 30
-        # mask:
-        # - MobMask
-        # layer:
-        # - MobLayer
+  # - type: Sprite
+    # sprite: _HL/Lizard/lizard.rsi
+    # layers:
+    # - map: [ "enum.DamageStateVisualLayers.Base" ]
+      # state: segment
+      # color: "#d30f0f"
+      # shader: unshaded
+    # scale: 1.2, 1.2
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeCircle
+          radius: 0.25
+        density: 20
+        mask:
+        - MobMask
+        layer:
+        - MobLayer
 
 - type: entity
   id: RedRainLizardSegment
+  parent: RedRainLizardInitialSegment 
   name: Red Rain Lizard Segment
   categories: [ HideSpawnMenu ]
   components:
-  - type: Sprite
-    sprite: _HL/Lizard/lizard.rsi
-    layers:
-    - map: [ "enum.DamageStateVisualLayers.Base" ]
-      state: segment
-      # color: "#d30f0f"
-      # shader: unshaded
-    scale: 1.2, 1.2
+  - type: Tag
+    tags:
+    - HideContextMenu
+    - DoorBumpOpener
+  # - type: Sprite
+    # sprite: _HL/Lizard/lizard.rsi
+    # layers:
+    # - map: [ "enum.DamageStateVisualLayers.Base" ]
+      # state: segment
+      # # color: "#d30f0f"
+      # # shader: unshaded
+    # scale: 1.2, 1.2
   # - type: Fixtures
     # fixtures:
       # fix1:

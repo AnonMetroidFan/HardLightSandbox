@@ -34,6 +34,13 @@ public sealed partial class SegmentedEntityComponent : Component
     public string TexturePath;
 
     /// <summary>
+    ///     Optional shader prototype ID to apply when rendering the texture from <see cref="TexturePath"/>.
+    ///     If null or invalid, rendering falls back to no shader.
+    /// </summary>
+    [DataField, AutoNetworkedField]
+    public string? ShaderId;
+
+    /// <summary>
     ///     If UseTaperSystem is true, this constant represents the rate at which a segmented entity will taper towards the tip. Tapering is on a logarithmic scale, and will asymptotically approach 0.
     /// </summary>
     [DataField]

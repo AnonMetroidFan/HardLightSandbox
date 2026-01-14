@@ -92,7 +92,7 @@
     useTaperSystem: true
     taperOffset: 3
     texturePath: /Textures/_HL/Lizard/lizard.rsi/segment.png
-
+    shaderId: unshaded
 # - type: entity
   # id: BlueRainLizardBody
   # parent: HL_LizardBody
@@ -159,14 +159,17 @@
       color: "#d30f0f"
       shader: unshaded
   - type: SegmentedEntity
-    numberOfSegments: 2
+    numberOfSegments: 3
+    initialRadius: 1
+    staticOffset: 1
+    staticScale: 1.5
     initialSegmentId: RedRainLizardInitialSegment
     segmentId: RedRainLizardSegment
-    staticOffset: 0.35
-    staticScale: 1.2
-    useTaperSystem: false
+    useTaperSystem: true
+    taperOffset: 3
     texturePath: /Textures/_HL/Lizard/lizard.rsi/segment.png
-
+    shaderId: unshaded
+    
 # - type: entity
   # id: RedRainLizardBody
   # parent: HL_LizardBody
