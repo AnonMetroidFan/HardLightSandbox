@@ -117,13 +117,42 @@ public sealed class SnakeOverlay : Overlay
         if (shaderInstance != null)
             handle.UseShader(shaderInstance);
 
+        // Maximum reasonable distance between segments (prevents stretching when segments are outside PVS)
+        const float maxSegmentDistance = 5f;
+
         int i = 1;
         // do each segment except the last one normally
         while (i < lamia.Segments.Count - 1)
         {
+            var originEnt = _entManager.GetEntity(lamia.Segments[i - 1]);
+            var destEnt = _entManager.GetEntity(lamia.Segments[i]);
+
+            // Skip if either segment doesn't exist or isn't initialized (outside PVS range)
+            if (!_entManager.EntityExists(originEnt) || !_entManager.EntityExists(destEnt))
+            {
+                i++;
+                radius *= lamia.SlimFactor;
+                lastPtCW = null;
+                lastPtCCW = null;
+                continue;
+            }
+
             // get centerpoints of last segment and this one
-            var origin = _transform.GetWorldPosition(_entManager.GetEntity(lamia.Segments[i - 1]));
-            var destination = _transform.GetWorldPosition(_entManager.GetEntity(lamia.Segments[i]));
+            var origin = _transform.GetWorldPosition(originEnt);
+            var destination = _transform.GetWorldPosition(destEnt);
+
+            // Check if the distance is unreasonably large (segment outside PVS range returns 0,0)
+            var distance = (destination - origin).Length();
+            if (distance > maxSegmentDistance || distance < 0.001f)
+            {
+                // Skip this segment pair - likely outside render distance
+                i++;
+                radius *= lamia.SlimFactor;
+                lastPtCW = null;
+                lastPtCCW = null;
+                continue;
+            }
+
             // get direction between the two points and normalize it
             var connectorVec = destination - origin;
             connectorVec = connectorVec.Normalized();
@@ -177,14 +206,26 @@ public sealed class SnakeOverlay : Overlay
         }
 
         // draw tail (1 tri)
-        if (lastPtCW != null && lastPtCCW != null)
+        if (lastPtCW != null && lastPtCCW != null && lamia.Segments.Count > 0)
         {
-            verts.Add(new DrawVertexUV2D((Vector2) lastPtCW, new Vector2(0, 0)));
-            verts.Add(new DrawVertexUV2D((Vector2) lastPtCCW, new Vector2(1, 0)));
-
-            var destination = _transform.GetWorldPosition(_entManager.GetEntity(lamia.Segments.Last()));
-
-            verts.Add(new DrawVertexUV2D(destination, new Vector2(0.5f, 1f)));
+            var tailEnt = _entManager.GetEntity(lamia.Segments.Last());
+            
+            // Only draw tail if the entity exists
+            if (_entManager.EntityExists(tailEnt))
+            {
+                var destination = _transform.GetWorldPosition(tailEnt);
+                
+                // Check that the tail position is reasonable (not stretched due to PVS)
+                var lastPos = ((Vector2)lastPtCW + (Vector2)lastPtCCW) / 2f;
+                var tailDistance = (destination - lastPos).Length();
+                
+                if (tailDistance <= maxSegmentDistance && tailDistance >= 0.001f)
+                {
+                    verts.Add(new DrawVertexUV2D((Vector2) lastPtCW, new Vector2(0, 0)));
+                    verts.Add(new DrawVertexUV2D((Vector2) lastPtCCW, new Vector2(1, 0)));
+                    verts.Add(new DrawVertexUV2D(destination, new Vector2(0.5f, 1f)));
+                }
+            }
         }
 
         // Draw all of the triangles we just pit in at once
