@@ -7,6 +7,67 @@
   - type: Sprite
     sprite: _HL/Lizard/lizard.rsi
     state: lizardheadclosed
+  - type: Tool
+    speedModifier: 1.5
+    qualities:
+      - Prying
+  - type: Prying
+    pryPowered: true
+    force: true
+    useSound:
+      path: /Audio/Items/crowbar.ogg
+  - type: MobState
+  - type: Deathgasp
+  - type: MobStateActions
+    actions:
+      Critical:
+      - ActionCritSuccumb
+      - ActionCritFakeDeath
+      - ActionCritLastWords
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      100: Critical
+      120: Dead
+  - type: SlowOnDamage
+    speedModifierThresholds:
+      95: 0.5
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 3
+    baseSprintSpeed: 4.5
+  - type: Stamina
+    critThreshold: 100
+  - type: LayingDown
+  - type: MeleeWeapon
+    altDisarm: false
+    angle: 0
+    soundHit:
+     collection: AlienClaw
+    animation: WeaponArcBite
+    damage:
+      types:
+      Blunt: 5
+      Slash: 5
+  - type: Puller
+    needsHands: false
+  - type: GhostRole
+    allowMovement: true
+    allowSpeech: true
+    makeSentient: true
+    name: ghost-role-information-rainlizard-name
+    description: ghost-role-information- rainlizard-description
+    rules: ghost-role-information-rainlizard-rules
+    raffle:
+      settings: default
+  - type: GhostTakeoverAvailable
+  - type: TypingIndicator
+    proto: alien
+  - type: NightVision
+    state: On
+  - type: CumProducer
+    maxVol: 250
+    reVol: 50
+    reHunger: 1
   - type: DamageStateVisuals
     states:
       Alive:
@@ -89,6 +150,29 @@
       scale: 0.8, 0.8
       color: "#14fc00"
       shader: unshaded
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      130: Critical
+      160: Dead
+  - type: SlowOnDamage
+    speedModifierThresholds:
+      100: 0.5
+  - type: Stamina
+    critThreshold: 100
+  - type: MeleeWeapon
+    altDisarm: false
+    angle: 0
+    soundHit:
+     collection: AlienClaw
+    animation: WeaponArcBite
+    damage:
+      types:
+      Blunt: 6
+      Slash: 6
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 2.5
+    baseSprintSpeed: 3.5
   - type: SegmentedEntity
     numberOfSegments: 3
     initialRadius: 0.5
@@ -136,6 +220,29 @@
       scale: 0.8, 0.8
       color: "#fc14a8"
       shader: unshaded
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      130: Critical
+      150: Dead
+  - type: SlowOnDamage
+    speedModifierThresholds:
+      100: 0.5
+  - type: Stamina
+    critThreshold: 100
+  - type: MeleeWeapon
+    altDisarm: false
+    angle: 0
+    soundHit:
+     collection: AlienClaw
+    animation: WeaponArcBite
+    damage:
+      types:
+      Blunt: 7
+      Slash: 7
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 3
+    baseSprintSpeed: 3.8
   - type: SegmentedEntity
     numberOfSegments: 3
     initialRadius: 0.5
@@ -183,6 +290,29 @@
       scale: 0.9, 0.9
       color: "#fcfcfc"
       shader: unshaded
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      150: Critical
+      200: Dead
+  - type: SlowOnDamage
+    speedModifierThresholds:
+      130: 0.5
+  - type: Stamina
+    critThreshold: 110
+  - type: MeleeWeapon
+    altDisarm: false
+    angle: 0
+    soundHit:
+     collection: AlienClaw
+    animation: WeaponArcBite
+    damage:
+      types:
+      Blunt: 8
+      Slash: 8
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 3
+    baseSprintSpeed: 4
   - type: SegmentedEntity
     numberOfSegments: 3
     initialRadius: 0.6
@@ -236,6 +366,29 @@
       scale: 0.8, 0.8
       color: "#16a59c"
       shader: unshaded
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      150: Critical
+      180: Dead
+  - type: SlowOnDamage
+    speedModifierThresholds:
+      120: 0.5
+  - type: Stamina
+    critThreshold: 100
+  - type: MeleeWeapon
+    altDisarm: false
+    angle: 0
+    soundHit:
+     collection: AlienClaw
+    animation: WeaponArcBite
+    damage:
+      types:
+      Blunt: 8
+      Slash: 8
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 3
+    baseSprintSpeed: 4.5
   - type: SegmentedEntity
     numberOfSegments: 3
     initialRadius: 0.5
@@ -283,6 +436,29 @@
       scale: 1.2, 1.2
       color: "#d30f0f"
       shader: unshaded
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      200: Critical
+      250: Dead
+  - type: SlowOnDamage
+    speedModifierThresholds:
+      190: 0.5
+  - type: Stamina
+    critThreshold: 100
+  - type: MeleeWeapon
+    altDisarm: false
+    angle: 0
+    soundHit:
+     collection: AlienClaw
+    animation: WeaponArcBite
+    damage:
+      types:
+      Blunt: 10
+      Slash: 12
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 3
+    baseSprintSpeed: 4
   - type: SegmentedEntity
     numberOfSegments: 3
     initialRadius: 0.7
@@ -311,6 +487,76 @@
       state: lizardheadopen
       scale: 1.2, 1.2
       color: "#d30f0f"
+      shader: unshaded
+      
+- type: entity
+  id: TrainRainLizard
+  parent: HL_LizardHead
+  name: Train Lizard
+  components:
+  - type: NpcFactionMember
+    factions:
+    - Lizard
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: _HL/Lizard/lizard.rsi
+    layers:
+    - map: [ "enum.DamageStateVisualLayers.Base" ]
+      state: lizardheadclosed
+      scale: 1.5, 1.5
+      color: "#5432a8"
+      shader: unshaded
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      300: Critical
+      450: Dead
+  - type: SlowOnDamage
+    speedModifierThresholds:
+      290: 0.5
+  - type: Stamina
+    critThreshold: 100
+  - type: MeleeWeapon
+    altDisarm: false
+    angle: 0
+    soundHit:
+     collection: AlienClaw
+    animation: WeaponArcBite
+    damage:
+      types:
+      Blunt: 13
+      Slash: 15
+  - type: MovementSpeedModifier
+    baseWalkSpeed: 4
+    baseSprintSpeed: 5.5
+  - type: SegmentedEntity
+    numberOfSegments: 8
+    initialRadius: 0.8
+    staticOffset: 1
+    staticScale: 0.9
+    initialSegmentId: RedRainLizardInitialSegment
+    segmentId: RedRainLizardSegment
+    useTaperSystem: true
+    taperOffset: 3
+    texturePath: /Textures/_HL/Lizard/lizard.rsi/trainsegment.png
+    shaderId: unshaded
+
+- type: entity
+  id: HostileTrainRainLizard
+  parent: TrainRainLizard
+  name: hostile Train Lizard
+  components:
+  - type: NpcFactionMember
+    factions:
+    - AgressiveLizard
+  - type: Sprite
+    drawdepth: Mobs
+    sprite: _HL/Lizard/lizard.rsi
+    layers:
+    - map: [ "enum.DamageStateVisualLayers.Base" ]
+      state: lizardheadopen
+      scale: 1.5, 1.5
+      color: "#5432a8"
       shader: unshaded
     
 # - type: entity

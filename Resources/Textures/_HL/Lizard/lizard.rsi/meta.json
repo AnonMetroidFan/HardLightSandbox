@@ -11,6 +11,9 @@
       "name": "segment"
     },
 	{
+      "name": "trainsegment"
+    },
+	{
       "name": "pinksegment"
     },
 	{
