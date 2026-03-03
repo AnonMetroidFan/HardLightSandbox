@@ -1537,3 +1537,9 @@ Entries:
       message: Added the radio system from goob.
   id: 164
   time: '2026-03-03T01:50:17.0000000+00:00'
+- author: fenndragon
+  changes:
+    - type: Fix
+      message: Fixed a bunch of broken tests and the lag we've been experiencing
+  id: 165
+  time: '2026-03-03T01:59:40.0000000+00:00'
