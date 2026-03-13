@@ -1,10 +1,10 @@
 # Faction Bodysuits
-# Inherit from BodysuitBase (latex bodysuit) with accessory slots
+# Inherit from ClothingBodysuitBase (latex bodysuit) with accessory slots
 
 # Arcadia Bodysuit
 - type: entity
-  parent: BodysuitBase
-  id: BodysuitArcadia
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitArcadia
   name: arcadia bodysuit
   description: A form-fitting bodysuit featuring Arcadia corporate colors and branding.
   components:
@@ -15,8 +15,8 @@
 
 # Cybersun Bodysuit
 - type: entity
-  parent: BodysuitBase
-  id: BodysuitCybersun
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitCybersun
   name: cybersun bodysuit
   description: A sleek bodysuit with Cybersun's technological aesthetic and advanced materials.
   components:
@@ -27,8 +27,8 @@
 
 # Dirizher Cartel Bodysuit
 - type: entity
-  parent: BodysuitBase
-  id: BodysuitCartel
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitCartel
   name: cartel bodysuit
   description: A bodysuit with subtle markings indicating affiliation with the Dirizher Cartel.
   components:
@@ -39,8 +39,8 @@
 
 # Donk. Co Bodysuit
 - type: entity
-  parent: BodysuitBase
-  id: BodysuitDonk
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitDonk
   name: donk. co bodysuit
   description: A corporate bodysuit featuring the distinctive Donk. Co branding and color scheme.
   components:
@@ -51,8 +51,8 @@
 
 # Hardliner Bodysuit
 - type: entity
-  parent: BodysuitBase
-  id: BodysuitHardliner
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitHardliner
   name: hardliner bodysuit
   description: A militaristic bodysuit designed for aggressive operations and tactical use.
   components:
@@ -63,8 +63,8 @@
 
 # Syndicate High Command Bodysuit
 - type: entity
-  parent: BodysuitBase
-  id: BodysuitSyndicateHighCommand
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitSyndicateHighCommand
   name: syndicate high command bodysuit
   description: An elite bodysuit reserved for high-ranking Syndicate commanders, featuring premium materials.
   components:
@@ -77,8 +77,8 @@
     - ClothMade
 # Interdyne Bodysuit
 - type: entity
-  parent: BodysuitBase
-  id: BodysuitInterdyne
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitInterdyne
   name: interdyne bodysuit
   description: A specialized bodysuit designed for research environments with Interdyne's distinctive styling.
   components:
@@ -89,8 +89,8 @@
 
 # Ramzi Bodysuit
 - type: entity
-  parent: BodysuitBase
-  id: BodysuitRamzi
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitRamzi
   name: ramzi bodysuit
   description: A bodysuit bearing the colors and insignia of the Ramzi Clique organization.
   components:
@@ -101,8 +101,8 @@
 
 # S.E.L.F. Bodysuit
 - type: entity
-  parent: BodysuitBase
-  id: BodysuitSELF
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitSELF
   name: s.e.l.f. bodysuit
   description: A bodysuit designed for the S.E.L.F. organization, featuring their distinctive styling.
   components:
@@ -113,8 +113,8 @@
 
 # SUNS Bodysuit
 - type: entity
-  parent: BodysuitBase
-  id: BodysuitSUNS
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitSUNS
   name: SUNS bodysuit
   description: A bodysuit featuring the SUNS organization's colors and design specifications.
   components:
@@ -125,8 +125,8 @@
 
 # Syndicate Navy Bodysuit
 - type: entity
-  parent: BodysuitBase
-  id: BodysuitSyndicateNavy
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitSyndicateNavy
   name: syndicate navy bodysuit
   description: A naval-grade bodysuit designed for space operations and extended missions.
   components:

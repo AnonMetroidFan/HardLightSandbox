@@ -1,6 +1,6 @@
 - type: entity
   parent: Clothing
-  id: BodysuitBase
+  id: ClothingBodysuitBase
   abstract: true
   name: latex bodysuit
   description: This leaves nothing to the imagination.
@@ -13,8 +13,8 @@
       path: /Audio/Items/jumpsuit_equip.ogg
 
 - type: entity
-  parent: BodysuitBase
-  id: LatexSuitBlack
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitLatexBlack
   suffix: black
   components:
   - type: Sprite
@@ -23,8 +23,8 @@
     sprite: _HL/Clothing/UnderClothing/latexblack.rsi
 
 - type: entity
-  parent: BodysuitBase
-  id: LatexSuitBlue
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitLatexBlue
   suffix: blue
   components:
   - type: Sprite
@@ -33,8 +33,8 @@
     sprite: _HL/Clothing/UnderClothing/latexblue.rsi
 
 - type: entity
-  parent: BodysuitBase
-  id: LatexSuitWhite
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitLatexWhite
   suffix: white
   components:
   - type: Sprite
@@ -43,8 +43,8 @@
     sprite: _HL/Clothing/UnderClothing/latexwhite.rsi
 
 - type: entity
-  parent: BodysuitBase
-  id: LatexSuitPurple
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitLatexPurple
   suffix: purple
   components:
   - type: Sprite
@@ -53,8 +53,8 @@
     sprite: _HL/Clothing/UnderClothing/latexpurple.rsi
 
 - type: entity
-  parent: BodysuitBase
-  id: LatexSuitYellow
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitLatexYellow
   suffix: yellow
   components:
   - type: Sprite
@@ -63,8 +63,8 @@
     sprite: _HL/Clothing/UnderClothing/latexyellow.rsi
 
 - type: entity
-  parent: BodysuitBase
-  id: LatexSuitRed
+  parent: ClothingBodysuitBase
+  id: ClothingBodysuitLatexRed
   suffix: red
   components:
   - type: Sprite
@@ -74,7 +74,7 @@
 
 - type: entity
   parent: ClothingEyesBase
-  id: BlindfoldBDSM
+  id: ClothingEyesBondageBlindfold
   name: bondage blindfold
   description: A slightly softer and more comfortable blindfold, for all your bondagey needs
   components:
@@ -89,8 +89,24 @@
   - type: SelfUnremovableClothing
 
 - type: entity
-  parent: ClothingMaskMuzzle
-  id: BallGag
+  abstract: true
+  parent: ClothingMaskBase
+  id: ClothingMaskBondageBase
+  components:
+  - type: Item
+    size: Tiny
+  - type: Sprite
+    sprite: Clothing/Mask/muzzle.rsi
+  - type: Clothing
+    sprite: Clothing/Mask/muzzle.rsi
+    equipDelay: 3
+    unequipDelay: 3
+  - type: AddAccentClothing
+    accent: MumbleAccent
+
+- type: entity
+  parent: ClothingMaskBondageBase
+  id: ClothingMaskBondageBallGag
   name: ball gag
   description: Gags you. With a ball.
   components:
@@ -99,10 +115,11 @@
   - type: Clothing
     sprite: _HL/Clothing/Bondage/ballgag.rsi
   - type: SelfUnremovableClothing
+  - type: IngestionBlocker
 
 - type: entity
-  parent: ClothingMaskMuzzle
-  id: RingGag
+  parent: ClothingMaskBondageBase
+  id: ClothingMaskBondageRingGag
   name: ring gag
   description: Gags you. With a ring.
   components:
@@ -116,7 +133,7 @@
 
 - type: entity
   parent: ClothingHandsBase
-  id: WristCuffs
+  id: ClothingHandsBondageWristCuffs
   name: wrist cuffs
   description: Leather cuffs for your wrist, with metal O-rings to tie someone up by.
   components:
@@ -130,7 +147,7 @@
 
 - type: entity
   parent: ClothingShoesBase
-  id: AnkleCuffs
+  id: ClothingShoesBondageAnkleCuffs
   name: ankle cuffs
   description: Leather cuffs for your ankle, with metal O-rings to tie someone up by.
   components:
@@ -144,7 +161,7 @@
 
 - type: entity
   parent: ClothingHandsBase
-  id: BondageMitts
+  id: ClothingHandsBondageMitts
   name: bondage mitts
   description: Nice and snug around your hands. You won't be picking up anything with these on. At least, when an update makes these actually block your hand slots. For now, just pretend.
   components:
@@ -158,7 +175,7 @@
 
 - type: entity
   parent: ClothingHandsBase
-  id: BondageArmSleeve
+  id: ClothingHandsBondageArmSleeve
   name: bondage arm sleeve
   description: The built-in mitts stop you from picking anything up. At least, when an update makes these actually block your hand slots. For now, just pretend.
   components:
@@ -172,7 +189,7 @@
 
 - type: entity
   parent: ClothingShoesBase
-  id: BondageLegSleeve
+  id: ClothingShoesBondageLegSleeve
   name: bondage leg sleeve
   description: For the aesthetically-minded bondage afficionado, to match their pet's arm sleeves.
   components:
@@ -186,7 +203,7 @@
 
 - type: entity
   parent: ClothingOuterBase
-  id: BondageHarness
+  id: ClothingOuterBondageHarness
   name: harness
   description: This doesn't actually do much to restrain you, but it's very bondage aesthetic!
   components:

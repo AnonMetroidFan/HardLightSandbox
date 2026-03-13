@@ -25,11 +25,11 @@
     SpankPinkPaddle: 2
     SpankTealPaddle: 2
     LeashBasic: 4
-    BondageHarness: 3
-    BondageMitts: 3
-    BondageLegSleeve: 3
-    BlindfoldBDSM: 3
-    BallGag: 3
+    ClothingOuterBondageHarness: 3
+    ClothingHandsBondageMitts: 3
+    ClothingShoesBondageLegSleeve: 3
+    ClothingEyesBondageBlindfold: 3
+    ClothingMaskBondageBallGag: 3
     LeashAdvanced: 2
     ChemistryBottlePomelustine: 1
     ClothingUniformJumpsuitCatsuit: 1
