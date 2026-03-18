@@ -299,6 +299,9 @@ public abstract partial class SharedGunSystem
     {
         SyncBallisticEntities(uid, component);
 
+        if (component.Container == null)
+            return;
+
         // TODO this should be part of the prototype, not set on map init.
         // Alternatively, just track spawned count, instead of unspawned count.
         if (component.Proto != null)
@@ -320,24 +323,31 @@ public abstract partial class SharedGunSystem
 
         for (var i = 0; i < args.Shots; i++)
         {
-            EntityUid entity;
-
-            if (component.Entities.Count > 0)
+            while (component.Entities.Count > 0)
             {
-                entity = component.Entities[^1];
-
-                args.Ammo.Add((entity, EnsureShootable(entity)));
+                var entity = component.Entities[^1];
                 component.Entities.RemoveAt(component.Entities.Count - 1);
                 Dirty(uid, component);
-                Containers.Remove(entity, component.Container);
+
+                if (!Exists(entity))
+                    continue;
+
+                if (TryComp(entity, out TransformComponent? _))
+                    Containers.Remove(entity, component.Container);
+
+                args.Ammo.Add((entity, EnsureShootable(entity)));
+                goto NextShot;
             }
-            else if (component.UnspawnedCount > 0)
+
+            if (component.UnspawnedCount > 0)
             {
                 component.UnspawnedCount--;
                 Dirty(uid, component);
-                entity = Spawn(component.Proto, args.Coordinates);
+                var entity = Spawn(component.Proto, args.Coordinates);
                 args.Ammo.Add((entity, EnsureShootable(entity)));
             }
+
+            NextShot: ;
         }
 
         UpdateBallisticAppearance(uid, component);
@@ -351,6 +361,13 @@ public abstract partial class SharedGunSystem
         if (ent.Comp.Entities.Count > 0)
         {
             var ammo = ent.Comp.Entities[^1];
+
+            if (!Exists(ammo))
+            {
+                SyncBallisticEntities(ent.Owner, ent.Comp);
+                return;
+            }
+
             args.ShootPrototype = MetaData(ammo).EntityPrototype;
         }
         else if (ent.Comp.UnspawnedCount > 0)
@@ -368,7 +385,12 @@ public abstract partial class SharedGunSystem
 
     private void SyncBallisticEntities(EntityUid uid, BallisticAmmoProviderComponent component)
     {
-        var changed = component.Entities.Count != component.Container.ContainedEntities.Count;
+        var container = component.Container;
+
+        if (container == null)
+            return;
+
+        var changed = component.Entities.Count != container.ContainedEntities.Count;
 
         if (!changed)
         {
@@ -376,7 +398,7 @@ public abstract partial class SharedGunSystem
             {
                 var entity = component.Entities[i];
 
-                if (Deleted(entity) || component.Container.ContainedEntities[i] != entity)
+                if (!Exists(entity) || container.ContainedEntities[i] != entity)
                 {
                     changed = true;
                     break;
@@ -389,9 +411,9 @@ public abstract partial class SharedGunSystem
 
         component.Entities.Clear();
 
-        foreach (var entity in component.Container.ContainedEntities)
+        foreach (var entity in container.ContainedEntities)
         {
-            if (Deleted(entity))
+            if (!Exists(entity))
                 continue;
 
             component.Entities.Add(entity);
